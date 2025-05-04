@@ -1,0 +1,49 @@
+---
+- name: Deploy ProfProbes VMs to Host Proxmox
+  hosts: proxmox
+  gather_facts: no
+  tasks:
+    - name: Remove old ratprox.iso if it exists
+      file:
+        path: /var/lib/vz/template/iso/ratprox.iso
+        state: absent
+
+    - name: Get ratprox.iso
+      command: >
+        wget -O /var/lib/vz/template/iso/ratprox.iso https://cdn.yourtld.lan/someimgdata/ratprox.iso
+
+    - name: Create VM
+      command: >
+        qm create {{ item.id }} --name {{ item.name }} --memory 10240 --balloon 0
+        --cpu cputype=host --cores 4 --sockets 2 --numa 1
+        --net0 virtio,bridge=vmbr0 --bios ovmf --machine pc-i440fx-9.2
+        --vga std --scsihw virtio-scsi-single --virtio0 SecondStore:128
+        --efidisk0 SecondStore:1,format=raw,efitype=4m,pre-enrolled-keys=1
+        --sata2 local:iso/ratprox.iso,media=cdrom --boot c --bootdisk sata2
+        --onboot 1
+      register: create_vm
+      loop:
+        - { id: 50001, name: "PVE-ProfProbes-1" }
+        - { id: 50002, name: "PVE-ProfProbes-2" }
+#       Uncomment this please if you need more PVEs
+#        - { id: 50003, name: "PVE-ProfProbes-3" }
+#        - { id: 50004, name: "PVE-ProfProbes-4" }
+#        - { id: 50005, name: "PVE-ProfProbes-5" }
+#        - { id: 50006, name: "PVE-ProfProbes-6" }
+#        - { id: 50007, name: "PVE-ProfProbes-7" }
+#        - { id: 50008, name: "PVE-ProfProbes-8" }
+
+
+    - name: Start VM
+      command: qm start {{ item.id }}
+      loop:
+        - { id: 50001 }
+        - { id: 50002 }
+#       Uncomment this please if you need more PVEs
+#        - { id: 50003 }
+#        - { id: 50004 }
+#        - { id: 50005 }
+#        - { id: 50006 }
+#        - { id: 50007 }
+#        - { id: 50008 }
+

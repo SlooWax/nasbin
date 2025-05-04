@@ -1,0 +1,34 @@
+#
+# This toml file for create Automatic-installation Proxmox ISO
+# I edited it for my needs
+# All additional information avaliable at: https://pve.proxmox.com/wiki/Automated_Installation
+#
+
+[global]
+keyboard = "en-us"					# I use EN keyboard layout
+country = "ru"						# Yep, all this lab tested in Russia Region
+fqdn = "profprobes.edu.yourtld.lan"	# It's a FQDN name - it use as hostname, but in our enviroment it dosen't work propertly :smile:
+mailto = "profprobes@yourtld.lan"	# This email dosen't work, but email needed
+timezone = "Europe/Moscow"			# GMT+3 Time Zone
+root-password = "P@ssw0rd"			# Simple password setted by Rusakov A.A. Manual Hankbook
+reboot-mode = "reboot"				# Reboot machine and boot in Proxmox VE
+
+[network]
+source = "from-dhcp"
+# cidr = "10.175.83.0/24"	# 
+# dns = "8.8.8.8"			# It's static DIT network and i don't need it, but i keep it save
+# gateway = "10.175.83.1"	#
+
+[disk-setup]
+filesystem = "zfs"			# I think - zfs is a good FS for educational enviroment
+zfs.raid = "raid0"			# Because we have a fucking 1 Disk on 128GB :seketon:
+zfs.arc-max = 2048			# We have 10240MB's and 2GB going to ARC
+zfs.checksum = "fletcher4"	# Nice check sum algorithm
+zfs.compress = "zstd"		# Good Compression and optimal speed
+zfs.copies = 1				# Bro, it's EDU Enviroment - we don't need many copies
+disk-list = ["vda"]			# If we create VM with VirtIO block with Virtio SCSI single contoller disk will called as VDA in 99.1% chance 
+
+[first-boot]
+source = "from-url"
+ordering = "fully-up"		# I NEED qm and pvesh tools for AutoDeployPVE script
+url = "https://cdn.yourtld.lan/Your/Path/To/SH/Script.sh"
